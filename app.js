@@ -17,12 +17,23 @@ const initializeDBandServer = async () => {
       filename: dbPath,
       driver: sqlite3.Database,
     })
+    app.listen(3000, () =>
+      console.log('Server Running at http://localhost:3000/'),
+    )
   } catch (e) {
     console.log(`${e.message}`)
-    process.exit(1)
+    process.exxit(1)
   }
 }
 initializeDBandServer()
+const convertDbObjectToResponseObject = dbObject => {
+  return {
+    playerId: dbObject.player_id,
+    playerName: dbObject.player_name,
+    jerseyNumber: dbObject.jersey_number,
+    role: dbObject.role,
+  }
+}
 
 app.get('/players/', async (request, response) => {
   const playersAll = `
@@ -33,7 +44,9 @@ app.get('/players/', async (request, response) => {
   ORDER BY 
   player_id;`
   const playersArray = await db.all(playersAll)
-  response.send(playersArray)
+  response.send(
+    playersArray.map(eachPlayer => convertDbObjectToResponseObject(eachPlayer)),
+  )
 })
 
 app.post('/players/', async (request, response) => {
@@ -45,7 +58,6 @@ app.post('/players/', async (request, response) => {
     ${role},
   );`
   const res = await db.run(playerAdd)
-  const playerId = res.lastID
   response.send('Player Added to Team')
 })
 
@@ -53,7 +65,9 @@ app.get('/players/:playerId/', async (request, response) => {
   const {playerId} = request.params
   const playerGet = `SELECT * FROM cricket_team WHERE player_id = ${playerId};`
   const playerone = await db.get(playerGet)
-  response.send(playerone)
+  response.send(
+    playerone.map(eachPlayer => convertDbObjectToResponseObject(eachPlayer)),
+  )
 })
 
 app.put('/players/:playerId/', async (request, response) => {
