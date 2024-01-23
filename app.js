@@ -34,6 +34,17 @@ const convertDbObjectToResponseObject = dbObject => {
     role: dbObject.role,
   }
 }
+app.post('/players/', async (request, response) => {
+  const playersDetails = request.body
+  const {playerName, jerseyNumber, role} = playersDetails
+  const playerAdd = `INSERT INTO cricket_team (player_name, jersey_number, role) VALUES(
+    '${playerName}', 
+    ${jerseyNumber},
+    '${role}',
+  );`
+  const res = await db.run(playerAdd)
+  response.send('Player Added to Team')
+})
 
 app.get('/players/', async (request, response) => {
   const playersAll = `
@@ -47,18 +58,6 @@ app.get('/players/', async (request, response) => {
   response.send(
     playersArray.map(eachPlayer => convertDbObjectToResponseObject(eachPlayer)),
   )
-})
-
-app.post('/players/', async (request, response) => {
-  const playersDetails = request.body
-  const {playerName, jerseyNumber, role} = playersDetails
-  const playerAdd = `INSERT INTO cricket_team (player_name, jersey_number, role) VALUES(
-    '${playerName}', 
-    ${jerseyNumber},
-    '${role}',
-  );`
-  const res = await db.run(playerAdd)
-  response.send('Player Added to Team')
 })
 
 app.get('/players/:playerId/', async (request, response) => {
@@ -75,17 +74,17 @@ app.put('/players/:playerId/', async (request, response) => {
   const playersDetails = request.body
   const {playerName, jerseyNumber, role} = playersDetails
   const playerUpdt = `UPDATE cricket_team SET
-   player_name = ${playerName},
+   player_name = '${playerName}',
    jersey_number = ${jerseyNumber},
-   All-Rounder = ${role}
-   WHERE playerId = ${playerId};`
+   All-Rounder = '${role}'
+   WHERE player_id = ${playerId};`
   await db.run(playerUpdt)
   response.send('Player details Updated')
 })
 
 app.delete('/players/:playerId/', async (request, response) => {
   const {playerId} = request.params
-  const playerDel = `DELETE FROM cricket_team WHERE playerId = ${playerId};`
+  const playerDel = `DELETE FROM cricket_team WHERE player_id = ${playerId};`
   await db.run(playerDel)
   response.send('Player Removed')
 })
