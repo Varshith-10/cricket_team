@@ -35,8 +35,7 @@ const convertDbObjectToResponseObject = dbObject => {
   }
 }
 app.post('/players/', async (request, response) => {
-  const playersDetails = request.body
-  const {playerName, jerseyNumber, role} = playersDetails
+  const {playerName, jerseyNumber, role} = request.body
   const playerAdd = `INSERT INTO cricket_team (player_name, jersey_number, role) VALUES(
     '${playerName}', 
     ${jerseyNumber},
@@ -64,15 +63,12 @@ app.get('/players/:playerId/', async (request, response) => {
   const {playerId} = request.params
   const playerGet = `SELECT * FROM cricket_team WHERE player_id = ${playerId};`
   const playerone = await db.get(playerGet)
-  response.send(
-    playerone.map(eachPlayer => convertDbObjectToResponseObject(eachPlayer)),
-  )
+  response.send(convertDbObjectToResponseObject(playerone))
 })
 
 app.put('/players/:playerId/', async (request, response) => {
   const {playerId} = request.params
-  const playersDetails = request.body
-  const {playerName, jerseyNumber, role} = playersDetails
+  const {playerName, jerseyNumber, role} = request.body
   const playerUpdt = `UPDATE cricket_team SET
    player_name = '${playerName}',
    jersey_number = ${jerseyNumber},
